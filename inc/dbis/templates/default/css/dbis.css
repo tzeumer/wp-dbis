@@ -1,0 +1,54 @@
+/* Generisch */
+/*div#dbis_wrapper        {width: 780px;}*/
+div#dbis_wrapper ul     {list-style-type: none; padding: 3px; margin: 0px;}
+div#dbis_wrapper ul li  {background-repeat: no-repeat; background-position: 0px 7px; padding-left: 30px;}
+div#dbis_header         {}
+form#dbis_search        {width: 100%; text-align: right;}
+
+/* Fachliste */
+ul #dbis_fachliste {}
+
+
+/* DBliste */
+div#dbis_legend  {background-color: #EDF0BC; padding: 8px;}
+
+li.dbis_category  { list-style: none; font-size: x-large; margin-top: 20px; background-color: #E3F0ED;}
+ul.dbis_category_sublist    { font-size: medium; background-color: #ffffff;}
+.toggle_sublist {display: none;}
+.dbis_category_toggle {float: right;}
+.dbis_category_toggle:hover {cursor: pointer; cursor: hand;}
+li.dbis_access_0  { background-image: url(../img/dbis-list_0.png); }
+li.dbis_access_1  { background-image: url(../img/dbis-list_1.png); }
+li.dbis_access_2  { background-image: url(../img/dbis-list_2.png); }
+li.dbis_access_3  { background-image: url(../img/dbis-list_3.png); }
+li.dbis_access_4  { background-image: url(../img/dbis-list_4.png); }
+li.dbis_access_5  { background-image: url(../img/dbis-list_5.png); }
+li.dbis_access_6  { background-image: url(../img/dbis-list_6.png); }
+li.dbis_access_7  { background-image: url(../img/dbis-list_7.png); }
+li.dbis_access_8  { background-image: url(../img/dbis-list_8.png); }
+li.dbis_access_9  { background-image: url(../img/dbis-list_9.png); }
+li.dbis_access_300 { background-image: url(../img/dbis-list_300.png); }
+li.dbis_access_500 { background-image: url(../img/dbis-list_500.png); }
+
+
+/* Detail */
+div#dbis_detail     {}
+#dbis_detail table  {}
+#dbis_detail th     {text-align: left; vertical-align: top;}
+
+tr#detail_title th      {font-size: x-large;}
+tr#detail_more_titles   {}
+tr#detail_start         {}
+tr#detail_start th      {width: 170px;}
+tr#detail_access        {}
+tr#detail_hints         {}
+tr#detail_content       {}
+tr#detail_subjects      {}
+tr#detail_keywords      {}
+tr#detail_appearence    {}
+tr#detail_db_types      {} /*display: none;*/
+tr#detail_publisher     {} /*display: none;*/
+tr#detail_remarks       {}
+
+tr#detail_subjects ul    {list-style-type: square; padding: 0px; margin-left: 15px;}
+tr#detail_subjects ul li {background-repeat: no-repeat; background-position: 0px 0px; padding-left: 0px;}

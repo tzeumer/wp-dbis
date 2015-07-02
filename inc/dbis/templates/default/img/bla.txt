@@ -1,0 +1,10 @@
+
+
+    frei im Web (frei im Web)
+    Campus-nur intern (im Campus-Netz zugänglich)
+    Campus-auch extern (im Campus-Netz sowie für Angehörige der Universität auch extern zugänglich)
+    Campus-auch extern (erweitert) (im Campus-Netz sowie für Benutzer mit gültigem Bibliotheksausweis auch extern zugänglich)
+    lokale Nutzung (in einer einzelnen Fakultät/ einer einzelnen Fachbibliothek)
+    Nationallizenz (deutschlandweit frei zugänglich (DFG-geförderte Nationallizenz))
+    Pay per Use (ein kostenpflichtiges Pay-per-Use-Angebot)
+
