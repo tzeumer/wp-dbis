@@ -1,5 +1,4 @@
 <?php
-require 'vendor/autoload.php';
 use Goutte\Client;
 
 /**
@@ -8,24 +7,31 @@ use Goutte\Client;
  * @note: maybe: http://www.sub.uni-hamburg.de/recherche/elektronische-angebote/datenbanken/neu-in-dbis.html
  * 
  * @todo Don't return formatted html but plain data
+ * @todo REMOVE ALL " use ($php53)",  $php53 in general and check assignments
  */
 class CloneDBIS {
-    private $caller;    // script that created an instance of this class (~real url)
+    public $caller;    // script that created an instance of this class (~real url); SHOULD BE PRIVATE - public only for pre PHP 5.4
+    private $caller_params = '';
     private $tpl_dir;
     public  $template = '';
     
-    private $dbis_url = 'http://rzblx10.uni-regensburg.de/dbinfo/';
+    private $dbis_url = 'http://dbis.uni-regensburg.de/';
     public  $dbis_id  = 'tuhh';
+
+    // Config stuff (@see start_dbis())
+    private $cfg_sort = 'alph'; //'alph' or 'type';
+    private $cfg_lng;
   
     // Actual links
     public $link_home = '';
     public $link_advanced_search = '';
     public $link_collections = '';
     public $link_free_dbs = '';
-        public $url_vanilla = '';
+    public $url_vanilla = '';
     public $link_vanilla = '';
-        public $new_since_days = 365;
+    public $new_since_days = 365;
     public $link_new = '';
+    public $link_dblink_sort = '';
     public $form_search = '';
         
     // Database access levels
@@ -40,7 +46,7 @@ class CloneDBIS {
     public $result_suche = array();
     
     // Only internal use
-    private $current_category;
+    public $current_category;       // SHOULD BE PRIVATE - public only for pre PHP 5.4
 
     
     /** /
@@ -48,39 +54,69 @@ class CloneDBIS {
      *        parameters (like there.net/wordpress/index.php?p=2)
      * @todo  unreliable: $this->tpl_dir
      */
-    public function __construct() {
+    public function __construct($options = array()) {
         $this->caller = basename($_SERVER['SCRIPT_NAME']);
-        $this->tpl_dir = '///'.$_SERVER['HTTP_HOST'].str_replace('\\', '/', dirname(substr(__FILE__, strlen($_SERVER['DOCUMENT_ROOT'])))).'/templates/';
+        $this->tpl_dir = '///'.$_SERVER['HTTP_HOST'].'/'.str_replace('\\', '/', dirname(substr(__FILE__, strlen($_SERVER['DOCUMENT_ROOT'])))).'/templates/';
+
+        // Process some options
+        $this->set_config($options);
         $this->define_db_access_types();
+        
+        if (PHP_MAJOR_VERSION >= 7 || (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION >= 4)) {
+            require 'vendor/autoload.php';
+        } elseif (PHP_MAJOR_VERSION >= 4 && PHP_MINOR_VERSION >= 3) {
+            require 'vendor43/autoload.php';
+        } else {
+            die('DBIS Cloner requires PHP 4.3, better 5.4');
+        }
     }
     
     public function start_dbis() {
+        // Real start
         $this->dbis_proxy();
         $this->nav_links();        
         $this->output();
     }
-    
+
+    /**
+     * Load options or set defaults
+     */
+    private function set_config($options) {
+        // Language (could be more sophisticated to support more languages...)
+        $lng = 'DE';
+        if (isset($options['lng'])) {
+            $lng = ($options['lng'] == 'EN') ? 'EN' : 'DE';
+        } 
+        include("locale/$lng.php");
+        $this->cfg_lng = $strings;
+        
+        // Default sort mode (only two options)
+        if (isset($options['lng'])) {
+            $this->cfg_sort = ($options['sort'] == 'alph') ? 'alph' : 'type';
+        }
+    }    
+           
     /**
      * Using method instead of defining property directly => better overview
      * @note Got it from http://www.sub.uni-hamburg.de/en/recherche/elektronische-angebote/datenbanken.html ("Datenbanken anzeigen")
      */
     private function define_db_access_types() {
-        $dbat[0] = 'Frei im Web';
+        $dbat[0] = $this->cfg_lng['dbat0'];
         //$dbat[1] = 'Online - auch extern';
-        $dbat[1] = 'Online-Datenbank mit Zugang ausschließlich für Angehörige der TU Hamburg-Harburg';
+        $dbat[1] = $this->cfg_lng['dbat1'];
         //$dbat[2] = 'Online - nur intern';
-        $dbat[2] = 'CD-ROM-Datenbank mit Zugang ausschließlich für Angehörige der TU Hamburg-Harburg';
-        $dbat[3] = 'CD-ROM - auch extern';
-        $dbat[4] = 'CD-ROM - nur intern';
-        $dbat[5] = 'Einzelplatz';
-        $dbat[6] = 'Über OPAC bestellbar';
-        $dbat[7] = 'Im Campus-Netz sowie für Benutzer mit gültigem Bibliotheksausweis auch extern zugänglich';
-        $dbat[8] = 'Online - auch extern (M)';
-        $dbat[9] = 'CD-ROM - auch extern (M)';
+        $dbat[2] = $this->cfg_lng['dbat2'];
+        $dbat[3] = $this->cfg_lng['dbat3'];
+        $dbat[4] = $this->cfg_lng['dbat4'];
+        $dbat[5] = $this->cfg_lng['dbat5'];
+        $dbat[6] = $this->cfg_lng['dbat6'];
+        $dbat[7] = $this->cfg_lng['dbat7'];
+        $dbat[8] = $this->cfg_lng['dbat8'];
+        $dbat[9] = $this->cfg_lng['dbat9'];
         //$dbat[300] = 'Pay-per-Use';
-        $dbat[300] = 'Ein kostenpflichtiges Pay-per-Use-Angebot';
+        $dbat[300] = $this->cfg_lng['dbat300'];
         //$dbat[500] = 'deutschlandweit frei (Nationallizenz)';
-        $dbat[500] = '<b>Deutschlandweit</b> frei zugänglich (<b>DFG</b>-geförderte Nationallizenz)';
+        $dbat[500] = $this->cfg_lng['dbat500'];
         
         $this->db_access_types = $dbat;
         
@@ -92,19 +128,28 @@ class CloneDBIS {
      * Only temporarily
      */
     private function nav_links() {
-        $this->link_home = '<a href="'.$this->caller.'" class="dbis_nav">Home</a>';
+        $this->link_home = '<a href="'.$this->caller.'" class="dbis_nav">'.$this->cfg_lng['link_home'].'</a>';
         
-        $this->link_advanced_search = '<a href="'.$this->caller.'?dbis=suche.php&bib_id='.$this->dbis_id.'" class="dbis_nav">Komfortsuche</a>';
+        $this->link_advanced_search = '<a href="'.$this->caller.'?dbis=suche.php&bib_id='.$this->dbis_id.'" class="dbis_nav">'.$this->cfg_lng['link_advanced_search'].'</a>';
         
-        $this->link_collections = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id='.$this->dbis_id.'&lett=s" class="dbis_nav">Sammlungen</a>';
+        $this->link_collections = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id='.$this->dbis_id.'&lett=s" class="dbis_nav">'.$this->cfg_lng['link_collections'].'</a>';
         
-        $this->link_free_dbs = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id=allefreien" class="dbis_nav">Freie DBs</a>';
+        $this->link_free_dbs = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id=allefreien" class="dbis_nav">'.$this->cfg_lng['link_free_dbs'].'</a>';
 
-        $this->link_vanilla = '<a href="'.$this->url_vanilla.'" class="dbis_nav">Vanilla DBIS</a>';
+        $this->link_subject = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id='.$this->dbis_id.'&lett=l" class="dbis_nav">'.$this->cfg_lng['link_subject'].'</a>';
+        
+        $this->link_vanilla = '<a href="'.$this->url_vanilla.'" class="dbis_nav">'.$this->cfg_lng['link_vanilla'].'</a>';
         
         $recent = date('d.m.Y', strtotime("-$this->new_since_days days"));
-        $this->link_new = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id'.$this->dbis_id.'&lett=k&jq_type1=LD&jq_term1='.$recent.'" class="dbis_nav">Neue DBs (letzten '.$this->new_since_days.' Tage)</a>';
+        $this->link_new = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=k&jq_type1=LD&jq_term1='.$recent.'" class="dbis_nav">'.$this->cfg_lng['link_new'].'</a>'; //(letzten '.$this->new_since_days.' Tage)
         
+        // Custom tub links
+        $this->link_tub_collTD = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=TD" class="dbis_nav">'.$this->cfg_lng['link_tub_collTD'].'</a>';
+
+        $this->link_tub_collNL = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=NL" class="dbis_nav">'.$this->cfg_lng['link_tub_collNL'].'</a>';
+
+        $this->link_tub_collSH = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=SH" class="dbis_nav">'.$this->cfg_lng['link_tub_collSH'].'</a>';
+
         $this->form_search = $this->get_simple_search();
     }
 
@@ -114,16 +159,23 @@ class CloneDBIS {
      */
     public function dbis_proxy() {
         if (isset($_GET['dbis'])) {
-            $target = $_GET['dbis'];
+            // Fix 2017-10-10 umlauts must be iso-8859-1 urlencoded
+            foreach ($_GET as $key => &$val) {
+                $val = mb_convert_encoding($val, "iso-8859-1");
+            }            
             
-            $query_dbis = $_SERVER['QUERY_STRING'];
-            $query_dbis = substr($query_dbis, 5); // minus "dbis="
-            $query_dbis = str_replace('php&', 'php?', $query_dbis);
-
-            $url = $this->dbis_url.$query_dbis;
+            $this->caller_params = $vanilla_params = $_GET;
+            $target = $vanilla_params['dbis'];
+            
+            unset($vanilla_params['dbis']);
+            $url = $this->dbis_url.$target.'?'.http_build_query($vanilla_params);
         } else {
+            /* Fachliste as start page
             $target = 'fachliste.php';
             $url = $this->dbis_url.'fachliste.php?bib_id='.$this->dbis_id.'&lett=l';
+            */
+            $target = 'dbliste.php';
+            $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=c&collid=TD';
         }
         $this->url_vanilla = $url;
         
@@ -169,11 +221,13 @@ class CloneDBIS {
         $crawler = $client->request('GET', $url);
 
         $this->result_headline = trim($crawler->filterXPath('//p[@class="headline"]')->text());
+        if (isset($this->cfg_lng[$this->result_headline])) $this->result_headline = $this->cfg_lng[$this->result_headline];
         
         // list with headings
         $list = $crawler->filterXPath('//div[@class="search_table"]/table//tr[td/@class[starts-with(.,"normal_body")]]');
         if ($list->count()) {
-            $this->result_fachliste = $list->each(function ($node) {
+            $php53 = $this;
+            $this->result_fachliste = $list->each(function ($node) use ($php53) {
                 $name = trim($node->filterXPath('//td[1]')->text());
                 $href = $node->filterXPath('//td[1]/a/@href')->text();
                 parse_str($href);
@@ -181,8 +235,8 @@ class CloneDBIS {
                 $link = trim($node->filterXPath('//td[1]')->html());
                 $hits = $node->filterXPath('//td[2]')->html();
 
-                $href = str_replace('dbliste.php?', $this->caller.'?dbis=dbliste.php&sort=type&', $href);
-                $link = str_replace('dbliste.php?', $this->caller.'?dbis=dbliste.php&sort=type&', $link);
+                $href = str_replace('dbliste.php?', $php53->caller.'?dbis=dbliste.php&sort='.$this->cfg_sort.'&', $href);
+                $link = str_replace('dbliste.php?', $php53->caller.'?dbis=dbliste.php&sort='.$this->cfg_sort.'&', $link);
 
                 $entry = array(
                     'id'    => $id,
@@ -208,10 +262,36 @@ class CloneDBIS {
      * @param type $url
      */
     private function get_dblist($url) {        
+        // Get current sort mode
+        //http_build_query($this->caller_params);
+
+        // START TMP 2016-10-20 (for sort link after first page call)
+        if (!isset($this->caller_params['dbis'])) {
+            $this->caller_params['dbis'] = 'dbliste.php';
+            $this->caller_params['bib_id'] = 'tuhh';
+            $this->caller_params['lett'] = 'c';
+            $this->caller_params['collid'] = 'TD';
+        }
+        // END TMP 2016-10-20 (for sort link after first page call)
+        
+        if (!isset($this->caller_params['sort'])) {
+            $this->caller_params['sort'] = 'type';
+            $link_txt = $this->cfg_lng['btn_sort_type'];
+        } elseif ($this->caller_params['sort'] == 'type') {
+            $this->caller_params['sort'] = 'alph';
+            $link_txt = $this->cfg_lng['btn_sort_alpha'];
+        } else {
+            $this->caller_params['sort'] = 'type';
+            $link_txt = $this->cfg_lng['btn_sort_type'];
+        }
+        $this->link_dblink_sort = '<a href="'.$this->caller.'?'.http_build_query($this->caller_params).'" id="link_sorting">'.$link_txt.'</a>';
+                
         $client = new Client();
         $crawler = $client->request('GET', $url);
         
         $this->result_headline = trim($crawler->filterXPath('//p[@class="headline"]')->text());
+        if (isset($this->cfg_lng[$this->result_headline])) $this->result_headline = $this->cfg_lng[$this->result_headline];
+
 
         // Paging
         $dblist = array();
@@ -237,7 +317,8 @@ class CloneDBIS {
     private function get_dblist_singlePage($dom) {
         $list = $dom->filterXPath('//div[@class="search_table"]/table//tr[td/@class[starts-with(.,"normal_")]]');
         if ($list->count()) {
-            $page_rows = $list->each(function ($node) {
+            $php53 = $this;
+            $page_rows = $list->each(function ($node) use ($php53) {
                 $category = $name = $link = $href = $id = $access_text = $access_lib = $access_id = '';
 
                 // $node holds the three table columns. There are three different row types: 'normal_head', 'normal_body' and 'normal_footer'
@@ -261,43 +342,44 @@ class CloneDBIS {
                     default:    
                         //
                 }          
-                //Change link (make this script behave kinda proxy)
-                $link = str_replace('detail.php?', $this->caller.'?dbis=detail.php&', $link);
-
-                //replace access logo (could just copy folder structure; it's like: icons/tuhh/zXXX.gif); CHECK for better generic way
-                if (strpos($access_lib, 'z0.gif') || !strpos($access_lib, '<img')) {
-                    // no img if calling http://rzblx10.uni-regensburg.de/dbinfo/fachliste.php?bib_id=allefreien
-                    $access_id = 0;
-                } 
-                elseif (strpos($access_lib, 'z1.gif'))   { $access_id = 1; }
-                elseif (strpos($access_lib, 'z2.gif'))   { $access_id = 2; }
-                elseif (strpos($access_lib, 'z3.gif'))   { $access_id = 3; }
-                elseif (strpos($access_lib, 'z4.gif'))   { $access_id = 4; }
-                elseif (strpos($access_lib, 'z5.gif'))   { $access_id = 5; }
-                elseif (strpos($access_lib, 'z6.gif'))   { $access_id = 6; }
-                elseif (strpos($access_lib, 'z7.gif'))   { $access_id = 7; }
-                elseif (strpos($access_lib, 'z8.gif'))   { $access_id = 8; }
-                elseif (strpos($access_lib, 'z9.gif'))   { $access_id = 9; }
-                elseif (strpos($access_lib, 'euro.gif')) { $access_id = 300; }
-                elseif (strpos($access_lib, 'z-de.gif')) { $access_id = 500; }
-                else {
-                    // Should not exist
-                }
 
                 if ($category) {
-                    $this->current_category = $category;
+                    $php53->current_category = $category;
                     return $category;
                     //echo "<h1>$category</h1>";
                 } 
                 // @todo: Strange. Sometimes there is an icon but an empty db name. Anyway, this is correct
                 elseif ($name) {
-                    $this->result_dbliste_legend[$access_id] = array (
+                    //Change link (make this script behave kinda proxy)
+                    $link = str_replace('detail.php?', $php53->caller.'?dbis=detail.php&', $link);
+
+                    //replace access logo (could just copy folder structure; it's like: icons/tuhh/zXXX.gif); CHECK for better generic way
+                    if (strpos($access_lib, 'z0.gif') || !strpos($access_lib, '<img')) {
+                        // no img if calling http://rzblx10.uni-regensburg.de/dbinfo/fachliste.php?bib_id=allefreien
+                        $access_id = 0;
+                    } 
+                    elseif (strpos($access_lib, 'z1.gif'))   { $access_id = 1; }
+                    elseif (strpos($access_lib, 'z2.gif'))   { $access_id = 2; }
+                    elseif (strpos($access_lib, 'z3.gif'))   { $access_id = 3; }
+                    elseif (strpos($access_lib, 'z4.gif'))   { $access_id = 4; }
+                    elseif (strpos($access_lib, 'z5.gif'))   { $access_id = 5; }
+                    elseif (strpos($access_lib, 'z6.gif'))   { $access_id = 6; }
+                    elseif (strpos($access_lib, 'z7.gif'))   { $access_id = 7; }
+                    elseif (strpos($access_lib, 'z8.gif'))   { $access_id = 8; }
+                    elseif (strpos($access_lib, 'z9.gif'))   { $access_id = 9; }
+                    elseif (strpos($access_lib, 'euro.gif')) { $access_id = 300; }
+                    elseif (strpos($access_lib, 'z-de.gif')) { $access_id = 500; }
+                    else {
+                        // Should not exist
+                    }
+                
+                    $php53->result_dbliste_legend[$access_id] = array (
                         'access_id' => $access_id,
-                        'text'      => $this->db_access_types[$access_id]
+                        'text'      => $php53->db_access_types[$access_id]
                     );
                             
                     $entry = array(
-                        'cat'       => $this->current_category,
+                        'cat'       => $php53->current_category,
                         'id'        => $id,
                         'name'      => $name,
                         'link'      => $link,
@@ -305,7 +387,7 @@ class CloneDBIS {
                         'access_id' => $access_id
                     );
                     
-                    $this->result_dbliste[$this->current_category][] = $entry;
+                    $php53->result_dbliste[$php53->current_category][] = $entry;
 
                     //echo  "$db_access_lib $link<br/>";
                     return $entry;
@@ -317,8 +399,8 @@ class CloneDBIS {
             $entry = array(
                 'cat'       => '',
                 'id'        => '',
-                'name'      => 'Ihre Suche lieferte leider keine Ergebnisse.',
-                'link'      => 'Ihre Suche lieferte leider keine Ergebnisse.',
+                'name'      => $this->cfg_lng['srch_no_result'],
+                'link'      => $this->cfg_lng['srch_no_result'],
                 'href'      => '',
                 'access_id' => ''
             );
@@ -347,7 +429,8 @@ class CloneDBIS {
         
         $list = $crawler->filterXPath('//div[@class="single_hit"]/table//tr[td/@class[starts-with(.,"normal_")]]');       
         if ($list->count()) {
-            $page_rows = $list->each(function ($node) {
+            $php53 = $this;
+            $page_rows = $list->each(function ($node) use ($php53) {
                 $db_title = $description_heading = $description_content = '';
 
                 // $node holds the three table columns. There are three different row types: 'normal_head', 'normal_body' and 'normal_footer'
@@ -362,7 +445,7 @@ class CloneDBIS {
                         if ($node->filterXPath('//td[2]')->count()) {
                             $description_content = $node->filterXPath('//td[2]')->html();
                         }
-                        $description_content = $this->adjust_detail_rows($description_id, $description_content);
+                        $description_content = $php53->adjust_detail_rows($description_id, $description_content);
                         break;
                     case 'normal_footer':
                         // Who cares...?
@@ -376,6 +459,7 @@ class CloneDBIS {
                     $description_content = '';
                     $row = '<table><tr id="detail_title"><th colspan="2">'.$db_title.'</td></tr>';
                 } else {
+                    if (isset($this->cfg_lng[$description_heading])) $description_heading = $this->cfg_lng[$description_heading];
                     $row = '<tr id="'.$description_id.'"><th>'.$description_heading.'</th><td>'.$description_content.'</td></tr>';
                 }
                 
@@ -386,7 +470,7 @@ class CloneDBIS {
                     'html'      => $row
                 );
                     
-                $this->result_detail['rows'] = $entry;
+                $php53->result_detail['rows'] = $entry;
 
                 return $row;
             });        
@@ -406,8 +490,10 @@ class CloneDBIS {
      * 
      * @todo check how to handle detail_db_types
      * @param type $id
+     * @todo MAKE PRIVATE IF NOT $php53
+     * @todo Check "2016-12-01 TEMP" comments (http to https hacks)
      */
-    private function adjust_detail_rows($id, $content) {
+    public function adjust_detail_rows($id, $content) {
         switch($id) {
             case 'detail_more_titles':
                 // Sometimes pretty long list (break for each entry), but change nothing for now
@@ -416,8 +502,14 @@ class CloneDBIS {
                 // Set correct link for database. DBIS uses a a special link for statistical purposes
                 $content = str_replace('a href="', 'a href="'.$this->dbis_url, $content);
                 break;
+            case 'detail_more_licensed_starts':
+                // 2016-12-01 TEMP: Replace Shibboleth image http link with https
+                $content = str_replace('http://sfx.gbv.de/sfx_tuhh/img/sfxmenu/shibb.png', 'https://sfx.gbv.de/sfx_tuhh/img/sfxmenu/shibb.png', $content);
+                break;
             case 'detail_access':
                 // Replace image > first make the replacement/license getting more clever @see get_dblist_singlePage()
+                    // 2016-12-01 TEMP: do it anyway temporarily
+                    $content = str_replace('http:', 'https:', $content);
                 // can be tricky: http://rzblx10.uni-regensburg.de/dbinfo/detail.php?bib_id=tuhh&colors=&ocolors=&lett=f&tid=0&titel_id=835
                 break;
             case 'detail_hints':
@@ -435,16 +527,16 @@ class CloneDBIS {
                 $linking = explode('<br>', $content);
                 $linking = array_filter($linking, 'strlen'); //remove empty entries
                 natsort($linking);
-                // Maybe linking without the library id would make more sense?
+                // Maybe linking it without the library would make more sense?
                 //$bib_id = 'alle';
                 $bib_id = $this->dbis_id;
                 foreach ($linking AS $index => &$keyword) {
                     $keyword = trim($keyword);
-                    $keyword = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$bib_id.'&lett=k&jq_type1=KW&jq_term1='.trim($keyword).'">'.$keyword.'</a>';
+                    $keyword = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$_GET['bib_id'].'&lett=k&jq_type1=KW&jq_term1='.$keyword.'">'.$keyword.'</a>';
                 }
                 $content = implode(', ', $linking);
                 break;
-            case 'detail_appearence':
+            case 'detail_appearance':
                 // Exciting facts here, nothing to change
                 break;
             case 'detail_db_types':
@@ -452,12 +544,18 @@ class CloneDBIS {
                 preg_match_all('/style="font-size:1em;">\s*(.*?)<script/', $content, $matches, PREG_PATTERN_ORDER);
                 $content = implode('<br>', $matches[1]);
                 break;
+            case 'detail_report_periods':
+                // Nothing to change here really...
+                break;
             case 'detail_publisher':
                 // Exciting facts here, nothing to change
                 break;
             case 'detail_remarks':
                 // Exciting facts here, nothing to change
-                break;                
+                // 2016-12-01 TEMP: Replace Shibboleth image http link with https
+                $content = str_replace('http://sfx.gbv.de:9004/sfx_tuhh/sfx.gif', 'https://sfx.gbv.de/sfx_tuhh/sfx.gif', $content);
+                $content = str_replace('http://sfx.gbv.de/sfx_tuhh/sfx.gif', 'https://sfx.gbv.de/sfx_tuhh/sfx.gif', $content);
+                break;
             default:
                 //
         }
@@ -494,11 +592,11 @@ class CloneDBIS {
      * @example http://rzblx10.uni-regensburg.de/dbinfo/dbliste.php?bib_id=tuhh&colors=7&ocolors=40&lett=fs&Suchwort=test
      */
     public function get_simple_search() {
-        $form = '<form id="dbis_search" method="get" action="'.$this->caller.'">
+        $form = '<form id="dbis_search" method="get" action="'.$this->caller.'">'.$this->link_advanced_search.'&nbsp;
                     <input type="hidden" name="dbis" value="dbliste.php">
                     <input type="hidden" name="bib_id" value="'.$this->dbis_id.'">
                     <input type="hidden" name="lett" value="fs">
-                    <input type="text" name="Suchwort" placeholder="Datenbank finden" />
+                    <input type="text" name="Suchwort" placeholder="'.$this->cfg_lng['simple_search_input'].'" />
                  </form>';
         
         return $form;

@@ -12,16 +12,24 @@ License: GPL2
 function shortcode_dbis( $atts ) {
 	// Set Plugin URL
 	$pluginUrl = WP_PLUGIN_URL . '/wp-dbis';
-  //wp_enqueue_style( 'todo.css', plugin_dir_url(__FILE__ ).'/style/todo.css');
-  //wp_enqueue_style( 'todo.css', $pluginUrl.'/style/todo.css');
-  //wp_enqueue_script("jquery");
+  //wp_enqueue_style( 'vplan-style.css', plugin_dir_url(__FILE__ ).'/scripts/vplan-style.css');
+  //wp_enqueue_style( 'vplan-style.css', $pluginUrl.'/scripts/vplan-style.css');
+    wp_enqueue_script("jquery");
 	//wp_enqueue_script("list_folding", "$pluginUrl/js/list_folding.js", array("jquery"));
+
+    // Parameters (or defaults) that can be used in shortcode
+    $atts = shortcode_atts(
+        array(
+            'lng'  => 'DE',
+            'sort' => 'alph',
+        ), $atts, 'bartag' );
 	
-  include 'inc/dbis/class.CloneDBIS.php';
-  $dbis_id = get_option('dbis_id');
-  $wp_dbis = new CloneDBIS();
-  if ($dbis_id) $wp_dbis->dbis_id = $dbis_id;
-  $wp_dbis->start_dbis();
+    include 'inc/dbis/class.CloneDBIS.php';
+    //$dbis_id = get_option('dbis_id'); // 2016-10-18 TZ: erst mal raus
+    $dbis_id = 'tuhh';
+    $bla = new CloneDBIS($atts);
+    if ($dbis_id) $bla->dbis_id = $dbis_id;
+    $bla->start_dbis();
 }
 add_shortcode( 'dbis', 'shortcode_dbis' );
 
@@ -33,8 +41,15 @@ add_shortcode( 'dbis', 'shortcode_dbis' );
 /* What to do when the plugin is activated? */
 register_activation_hook(__FILE__,'dbis_install');
 function dbis_install() {
+  // guzzle needs 5.4
+  $compatible = (PHP_MAJOR_VERSION >= 4 && PHP_MINOR_VERSION >= 3) ? true : false;
+
+  if (!$compatible) {
+    trigger_error('<p><strong>Dieses Plugin benötigt mindestens PHP 4.3, besser PHP 5.4. Ihre Version: '.PHP_VERSION."</strong></p><br>\n", E_USER_ERROR );
+  }
+  
   /* Create a new database field */
-  add_option("dbis_id", 'tuhh', 'DBIS ID of library', 'yes');
+  add_option("dbis_id", 'Testing !! My Plugin is Working Fine.', 'This is my first plugin panel data.', 'yes');
 }
 
 
@@ -45,21 +60,10 @@ function dbis_remove() {
   delete_option('dbis_id');
 }
 
-/* Add option page for admins */
-if ( is_admin() ){ // admin actions
-  add_action('admin_menu', 'add_dbis_settings');
-  add_action( 'admin_init', 'register_dbis_settings' );
-  function add_dbis_settings() {
-    add_options_page('Plugin Admin Options', 'DBIS-Einstellungen', 'manage_options',
-    'wp-dbis-settings', 'plugin_admin_options_page');
-  }
-} else {
-  // non-admin enqueues, actions, and filters
-}
-
-
-function register_dbis_settings() { // whitelist options
-  register_setting( 'dbis_settings-group', 'dbis_id' );
+add_action('admin_menu', 'dbis_admin_menu');
+function dbis_admin_menu() {
+  add_options_page('Plugin Admin Options', 'DBIS-Einstellungen', 'manage_options',
+  'my-first', 'plugin_admin_options_page');
 }
 
 
@@ -70,12 +74,11 @@ function plugin_admin_options_page() {
     <h2>DBIS-Einstellungen</h2>
     <p>
       <form method="post" action="options.php">
-        <?php
-          settings_fields( 'dbis_settings-group' );
-          do_settings_sections( 'dbis_settings-group' );
-        ?>
+<?php wp_nonce_field('update-options'); ?>
         DBIS-ID: <input name="dbis_id" type="text" id="dbis_id" value="<?php echo get_option('dbis_id'); ?>" />
-        <?php submit_button(); ?>
+        <input type="hidden" name="action" value="update" />
+        <input type="hidden" name="page_options" value="tuhh" />
+        <input type="submit" value="Save Changes" />
       </form>
     </p>
   </div>

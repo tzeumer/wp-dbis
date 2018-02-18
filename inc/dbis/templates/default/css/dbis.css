@@ -1,18 +1,26 @@
 /* Generisch */
-/*div#dbis_wrapper        {width: 780px;}*/
+/*div#dbis_wrapper        {width: 780px; margin: auto auto;}*/
+div#dbis_wrapper        {display: block; width: auto;}
 div#dbis_wrapper ul     {list-style-type: none; padding: 3px; margin: 0px;}
 div#dbis_wrapper ul li  {background-repeat: no-repeat; background-position: 0px 7px; padding-left: 30px;}
-div#dbis_header         {}
+div#dbis_header #dbis_navmenu {font-size: 16px;}
 form#dbis_search        {width: 100%; text-align: right;}
 
 /* Fachliste */
-ul #dbis_fachliste {}
-
+#dbis_fachliste {margin-left: -30px !important; }
+#dbis_fachliste li {padding-top: 5px;}
 
 /* DBliste */
 div#dbis_legend  {background-color: #EDF0BC; padding: 8px;}
 
-li.dbis_category  { list-style: none; font-size: x-large; margin-top: 20px; background-color: #E3F0ED;}
+#link_sorting {border: thin solid #619144; background-color: #619144; padding: 5px; text-decoration: none; color: white; border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;}
+#link_sorting:hover {background-color: #B1E194; color: #000000;}
+    
+li.dbis_category  { list-style: none; font-size: large; margin-top: 20px; background-color: #E3F0ED;}
 ul.dbis_category_sublist    { font-size: medium; background-color: #ffffff;}
 .toggle_sublist {display: none;}
 .dbis_category_toggle {float: right;}
@@ -48,6 +56,7 @@ tr#detail_keywords      {}
 tr#detail_appearence    {}
 tr#detail_db_types      {} /*display: none;*/
 tr#detail_publisher     {} /*display: none;*/
+tr#detail_report_periods {}
 tr#detail_remarks       {}
 
 tr#detail_subjects ul    {list-style-type: square; padding: 0px; margin-left: 15px;}
