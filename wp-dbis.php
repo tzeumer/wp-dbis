@@ -42,8 +42,9 @@ add_shortcode( 'dbis', 'shortcode_dbis' );
 register_activation_hook(__FILE__,'dbis_install');
 function dbis_install() {
   // guzzle needs 5.4
-  $compatible = (PHP_MAJOR_VERSION >= 4 && PHP_MINOR_VERSION >= 3) ? true : false;
+//  $compatible = (PHP_MAJOR_VERSION >= 4 && PHP_MINOR_VERSION >= 3) ? true : false;
 
+$compatible = true;
   if (!$compatible) {
     trigger_error('<p><strong>Dieses Plugin benötigt mindestens PHP 4.3, besser PHP 5.4. Ihre Version: '.PHP_VERSION."</strong></p><br>\n", E_USER_ERROR );
   }
