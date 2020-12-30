@@ -11,7 +11,7 @@ use Goutte\Client;
  */
 class CloneDBIS {
     public $caller;    // script that created an instance of this class (~real url); SHOULD BE PRIVATE - public only for pre PHP 5.4
-    private $caller_params = '';
+    private $caller_params = array();
     private $tpl_dir;
     public  $template = '';
     
