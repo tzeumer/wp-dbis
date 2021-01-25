@@ -1,18 +1,25 @@
 language: php
 
+sudo: false
+
+cache:
+    - $HOME/composer/cache/files
+    - $HOME/.phpunit_bridge
+
+env:
+    global:
+        - SYMFONY_PHPUNIT_DIR=$HOME/.phpunit_bridge
+
 php:
-    - 7.0
-    - 5.6
-    - 5.5
-    - hhvm
+    - nightly
+    - 7.4
+    - 7.3
+    - 7.2
+    - 7.1
 
 install:
-    - travis_retry composer install --no-interaction --prefer-source
+    - composer update
+    - vendor/bin/simple-phpunit install
 
 script:
-    - phpunit
-
-matrix:
-    allow_failures:
-        - php: hhvm
-        - php: 7.0
+    - vendor/bin/simple-phpunit

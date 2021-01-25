@@ -44,8 +44,6 @@ abstract class FormField
     protected $disabled;
 
     /**
-     * Constructor.
-     *
      * @param \DOMElement $node The node associated with this field
      */
     public function __construct(\DOMElement $node)
@@ -74,11 +72,8 @@ abstract class FormField
         }
 
         $labels = $xpath->query('ancestor::label[1]', $this->node);
-        if ($labels->length > 0) {
-            return $labels->item(0);
-        }
 
-        return;
+        return $labels->length > 0 ? $labels->item(0) : null;
     }
 
     /**
@@ -103,12 +98,10 @@ abstract class FormField
 
     /**
      * Sets the value of the field.
-     *
-     * @param string $value The value of the field
      */
-    public function setValue($value)
+    public function setValue(?string $value)
     {
-        $this->value = (string) $value;
+        $this->value = $value ?? '';
     }
 
     /**

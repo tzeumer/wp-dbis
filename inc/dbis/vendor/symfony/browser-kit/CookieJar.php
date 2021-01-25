@@ -18,13 +18,8 @@ namespace Symfony\Component\BrowserKit;
  */
 class CookieJar
 {
-    protected $cookieJar = array();
+    protected $cookieJar = [];
 
-    /**
-     * Sets a cookie.
-     *
-     * @param Cookie $cookie A Cookie instance
-     */
     public function set(Cookie $cookie)
     {
         $this->cookieJar[$cookie->getDomain()][$cookie->getPath()][$cookie->getName()] = $cookie;
@@ -38,44 +33,31 @@ class CookieJar
      * (this behavior ensures a BC behavior with previous versions of
      * Symfony).
      *
-     * @param string $name   The cookie name
-     * @param string $path   The cookie path
-     * @param string $domain The cookie domain
-     *
      * @return Cookie|null A Cookie instance or null if the cookie does not exist
      */
-    public function get($name, $path = '/', $domain = null)
+    public function get(string $name, string $path = '/', string $domain = null)
     {
         $this->flushExpiredCookies();
 
-        if (!empty($domain)) {
-            foreach ($this->cookieJar as $cookieDomain => $pathCookies) {
-                if ($cookieDomain) {
-                    $cookieDomain = '.'.ltrim($cookieDomain, '.');
-                    if ($cookieDomain != substr('.'.$domain, -strlen($cookieDomain))) {
-                        continue;
-                    }
-                }
-
-                foreach ($pathCookies as $cookiePath => $namedCookies) {
-                    if ($cookiePath != substr($path, 0, strlen($cookiePath))) {
-                        continue;
-                    }
-                    if (isset($namedCookies[$name])) {
-                        return $namedCookies[$name];
-                    }
+        foreach ($this->cookieJar as $cookieDomain => $pathCookies) {
+            if ($cookieDomain && $domain) {
+                $cookieDomain = '.'.ltrim($cookieDomain, '.');
+                if ($cookieDomain !== substr('.'.$domain, -\strlen($cookieDomain))) {
+                    continue;
                 }
             }
 
-            return;
-        }
-
-        // avoid relying on this behavior that is mainly here for BC reasons
-        foreach ($this->cookieJar as $cookies) {
-            if (isset($cookies[$path][$name])) {
-                return $cookies[$path][$name];
+            foreach ($pathCookies as $cookiePath => $namedCookies) {
+                if (0 !== strpos($path, $cookiePath)) {
+                    continue;
+                }
+                if (isset($namedCookies[$name])) {
+                    return $namedCookies[$name];
+                }
             }
         }
+
+        return null;
     }
 
     /**
@@ -84,12 +66,8 @@ class CookieJar
      * You should never use an empty domain, but if you do so,
      * all cookies for the given name/path expire (this behavior
      * ensures a BC behavior with previous versions of Symfony).
-     *
-     * @param string $name   The cookie name
-     * @param string $path   The cookie path
-     * @param string $domain The cookie domain
      */
-    public function expire($name, $path = '/', $domain = null)
+    public function expire(string $name, ?string $path = '/', string $domain = null)
     {
         if (null === $path) {
             $path = '/';
@@ -100,7 +78,7 @@ class CookieJar
             // this should never happen but it allows for a better BC
             $domains = array_keys($this->cookieJar);
         } else {
-            $domains = array($domain);
+            $domains = [$domain];
         }
 
         foreach ($domains as $domain) {
@@ -121,25 +99,24 @@ class CookieJar
      */
     public function clear()
     {
-        $this->cookieJar = array();
+        $this->cookieJar = [];
     }
 
     /**
      * Updates the cookie jar from a response Set-Cookie headers.
      *
-     * @param array  $setCookies Set-Cookie headers from an HTTP response
-     * @param string $uri        The base URL
+     * @param string[] $setCookies Set-Cookie headers from an HTTP response
      */
-    public function updateFromSetCookie(array $setCookies, $uri = null)
+    public function updateFromSetCookie(array $setCookies, string $uri = null)
     {
-        $cookies = array();
+        $cookies = [];
 
         foreach ($setCookies as $cookie) {
             foreach (explode(',', $cookie) as $i => $part) {
                 if (0 === $i || preg_match('/^(?P<token>\s*[0-9A-Za-z!#\$%\&\'\*\+\-\.^_`\|~]+)=/', $part)) {
                     $cookies[] = ltrim($part);
                 } else {
-                    $cookies[count($cookies) - 1] .= ','.$part;
+                    $cookies[\count($cookies) - 1] .= ','.$part;
                 }
             }
         }
@@ -155,11 +132,8 @@ class CookieJar
 
     /**
      * Updates the cookie jar from a Response object.
-     *
-     * @param Response $response A Response object
-     * @param string   $uri      The base URL
      */
-    public function updateFromResponse(Response $response, $uri = null)
+    public function updateFromResponse(Response $response, string $uri = null)
     {
         $this->updateFromSetCookie($response->getHeader('Set-Cookie', false), $uri);
     }
@@ -173,7 +147,7 @@ class CookieJar
     {
         $this->flushExpiredCookies();
 
-        $flattenedCookies = array();
+        $flattenedCookies = [];
         foreach ($this->cookieJar as $path) {
             foreach ($path as $cookies) {
                 foreach ($cookies as $cookie) {
@@ -188,27 +162,24 @@ class CookieJar
     /**
      * Returns not yet expired cookie values for the given URI.
      *
-     * @param string $uri             A URI
-     * @param bool   $returnsRawValue Returns raw value or urldecoded value
-     *
      * @return array An array of cookie values
      */
-    public function allValues($uri, $returnsRawValue = false)
+    public function allValues(string $uri, bool $returnsRawValue = false)
     {
         $this->flushExpiredCookies();
 
-        $parts = array_replace(array('path' => '/'), parse_url($uri));
-        $cookies = array();
+        $parts = array_replace(['path' => '/'], parse_url($uri));
+        $cookies = [];
         foreach ($this->cookieJar as $domain => $pathCookies) {
             if ($domain) {
                 $domain = '.'.ltrim($domain, '.');
-                if ($domain != substr('.'.$parts['host'], -strlen($domain))) {
+                if ($domain != substr('.'.$parts['host'], -\strlen($domain))) {
                     continue;
                 }
             }
 
             foreach ($pathCookies as $path => $namedCookies) {
-                if ($path != substr($parts['path'], 0, strlen($path))) {
+                if ($path != substr($parts['path'], 0, \strlen($path))) {
                     continue;
                 }
 
@@ -228,11 +199,9 @@ class CookieJar
     /**
      * Returns not yet expired raw cookie values for the given URI.
      *
-     * @param string $uri A URI
-     *
      * @return array An array of cookie values
      */
-    public function allRawValues($uri)
+    public function allRawValues(string $uri)
     {
         return $this->allValues($uri, true);
     }
