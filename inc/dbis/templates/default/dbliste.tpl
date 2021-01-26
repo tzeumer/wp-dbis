@@ -20,7 +20,8 @@
           if (strrpos($category, 'Gewählte Datenbanken') !== false 
                   || strrpos($category, 'TOP-Datenbanken') !== false
                   || strrpos($category, 'Gesamtangebot') !== false
-                  || strrpos($category, 'Suche') !== false) {
+                  || strrpos($category, 'Suche') !== false
+                  || $category == '') {
               $toggle = '';
               $list_class = 'dbis_category_sublist';              
           } else {

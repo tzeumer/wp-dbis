@@ -34,6 +34,7 @@ $strings = array(
 // Menülinks
 'link_home'             => 'Home',
 'link_advanced_search'  => 'Advanced search',
+'link_alphabetically'   => 'Alphabetically',
 'link_collections'      => 'collections',
 'link_free_dbs'         => 'Free databases',
 'link_subject'          => 'Subject list',

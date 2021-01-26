@@ -25,6 +25,7 @@ class CloneDBIS {
     // Actual links
     public $link_home = '';
     public $link_advanced_search = '';
+    public $link_alphabetically = '';
     public $link_collections = '';
     public $link_free_dbs = '';
     public $url_vanilla = '';
@@ -131,6 +132,8 @@ class CloneDBIS {
         $this->link_home = '<a href="'.$this->caller.'" class="dbis_nav">'.$this->cfg_lng['link_home'].'</a>';
         
         $this->link_advanced_search = '<a href="'.$this->caller.'?dbis=suche.php&bib_id='.$this->dbis_id.'" class="dbis_nav">'.$this->cfg_lng['link_advanced_search'].'</a>';
+
+        $this->link_alphabetically = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=a&fc=1&lc=z" class="dbis_nav">'.$this->cfg_lng['link_alphabetically'].'</a>';
         
         $this->link_collections = '<a href="'.$this->caller.'?dbis=fachliste.php&bib_id='.$this->dbis_id.'&lett=s" class="dbis_nav">'.$this->cfg_lng['link_collections'].'</a>';
         
@@ -174,8 +177,13 @@ class CloneDBIS {
             $target = 'fachliste.php';
             $url = $this->dbis_url.'fachliste.php?bib_id='.$this->dbis_id.'&lett=l';
             */
+            /* Bis 2021-01-26 DBliste Topdatenbanken als Startseit
             $target = 'dbliste.php';
             $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=c&collid=TD';
+            */
+            // 2021-01-26 Alpabaetisch als standard
+            $target = 'dbliste.php';
+            $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=a&fc=1&lc=z';
         }
         $this->url_vanilla = $url;
         
@@ -286,8 +294,11 @@ class CloneDBIS {
             $this->caller_params['sort'] = $this->cfg_sort;
             $link_txt = $this->cfg_lng['btn_sort_'.$this->cfg_sort];
         }
+        
+        // Disable sort for 'a' (alphabetically; added 2021-01-26)
+        if ($this->caller_params['lett'] == 'c') {
+            $this->link_dblink_sort = '<a href="'.$this->caller.'?'.http_build_query($this->caller_params).'" id="link_sorting">'.$link_txt.'</a>';
         }
-        $this->link_dblink_sort = '<a href="'.$this->caller.'?'.http_build_query($this->caller_params).'" id="link_sorting">'.$link_txt.'</a>';
                 
         $client = new Client();
         $crawler = $client->request('GET', $url);

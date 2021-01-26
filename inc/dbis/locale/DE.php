@@ -36,6 +36,7 @@ $strings =  array(
 // Menülinks
 'link_home'             => 'Start',
 'link_advanced_search'  => 'Zur Komfortsuche',
+'link_alphabetically'   => 'Alphabetisch',
 'link_collections'      => 'Sammlungen',
 'link_free_dbs'         => 'Freie Datenbanken',
 'link_subject'          => 'Fachliste',
