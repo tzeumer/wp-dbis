@@ -28,7 +28,7 @@ $strings = array(
 'Ergebnisse Ihrer Suche'=> 'Results for your search', 
 
 // Listensortierung
-'btn_sort_alpha'    => 'Sort the list alphabetically',
+'btn_sort_alph'    => 'Sort the list alphabetically',
 'btn_sort_type'     => 'Sort list by database types',
 
 // Menülinks

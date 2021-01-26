@@ -30,7 +30,7 @@ $strings =  array(
 */
 
 // Listensortierung
-'btn_sort_alpha'    => 'Liste alphabetisch sortieren',
+'btn_sort_alph'    => 'Liste alphabetisch sortieren',
 'btn_sort_type'     => 'Liste nach Datenbanktypen sortieren',
 
 // Menülinks

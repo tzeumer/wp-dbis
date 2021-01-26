@@ -273,16 +273,19 @@ class CloneDBIS {
             $this->caller_params['collid'] = 'TD';
         }
         // END TMP 2016-10-20 (for sort link after first page call)
-        
         if (!isset($this->caller_params['sort'])) {
-            $this->caller_params['sort'] = 'type';
-            $link_txt = $this->cfg_lng['btn_sort_type'];
+            $this->caller_params['sort'] = $this->cfg_sort;
+            $link_txt = $this->cfg_lng['btn_sort_'.$this->cfg_sort];
         } elseif ($this->caller_params['sort'] == 'type') {
             $this->caller_params['sort'] = 'alph';
-            $link_txt = $this->cfg_lng['btn_sort_alpha'];
-        } else {
+            $link_txt = $this->cfg_lng['btn_sort_alph'];
+        } elseif ($this->caller_params['sort'] == 'alph') {
             $this->caller_params['sort'] = 'type';
             $link_txt = $this->cfg_lng['btn_sort_type'];
+        } else {
+            $this->caller_params['sort'] = $this->cfg_sort;
+            $link_txt = $this->cfg_lng['btn_sort_'.$this->cfg_sort];
+        }
         }
         $this->link_dblink_sort = '<a href="'.$this->caller.'?'.http_build_query($this->caller_params).'" id="link_sorting">'.$link_txt.'</a>';
                 
