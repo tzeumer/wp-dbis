@@ -601,32 +601,6 @@ class CloneDBIS {
         
         return $form;
     }
-    
-    
-    /** /
-     * 
-     */
-    private function test_get_all_dbs() {
-        $client = new Client();
-
-        // Got to "Alphabetische Liste" (required! ...to start a php session)
-        $url = 'http://rzblx10.uni-regensburg.de/dbinfo/dbliste.php?bib_id=tuhh&colors=7&ocolors=40&lett=a';
-        $crawler = $client->request('GET', $url);
-
-        // Select first entry (make this failsafe)
-        $link = $crawler->selectLink('17th - 18th Century Burney Collection Newspapers')->link();
-        $crawler = $client->click($link);
-
-        // Next DB; lol - damit kommt man nicht durch alle, sondern nur bis zum "index-Buchstaben-Ende"
-        while ($crawler->selectLink('vor')->count()) {
-            // Scrape infos...
-            $tit = $crawler->filter('.normal_head')->text();
-            echo trim($tit).'<br>';
-
-            // Next entry
-            $link = $crawler->selectLink('vor')->link();
-            $crawler = $client->click($link);
-        }
-    }
+        
 }
 ?>
