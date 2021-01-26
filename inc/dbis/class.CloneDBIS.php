@@ -11,11 +11,11 @@ use Goutte\Client;
  */
 class CloneDBIS {
     public $caller;    // script that created an instance of this class (~real url); SHOULD BE PRIVATE - public only for pre PHP 5.4
-    private $caller_params = array();
+    private $caller_params = '';
     private $tpl_dir;
     public  $template = '';
     
-    private $dbis_url = 'http://dbis.uni-regensburg.de/';
+    private $dbis_url = 'https://dbis.uni-regensburg.de/';
     public  $dbis_id  = 'tuhh';
 
     // Config stuff (@see start_dbis())
