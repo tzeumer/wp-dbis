@@ -11,7 +11,7 @@ use Goutte\Client;
  */
 class CloneDBIS {
     public $caller;    // script that created an instance of this class (~real url); SHOULD BE PRIVATE - public only for pre PHP 5.4
-    private $caller_params = '';
+    private $caller_params = array();
     private $tpl_dir;
     public  $template = '';
     
@@ -92,7 +92,7 @@ class CloneDBIS {
         $this->cfg_lng = $strings;
         
         // Default sort mode (only two options)
-        if (isset($options['lng'])) {
+        if (!isset($options['sort'])) {
             $this->cfg_sort = ($options['sort'] == 'alph') ? 'alph' : 'type';
         }
     }    
@@ -283,16 +283,14 @@ class CloneDBIS {
         // END TMP 2016-10-20 (for sort link after first page call)
         if (!isset($this->caller_params['sort'])) {
             $this->caller_params['sort'] = $this->cfg_sort;
-            $link_txt = $this->cfg_lng['btn_sort_'.$this->cfg_sort];
-        } elseif ($this->caller_params['sort'] == 'type') {
+        } 
+        
+        if ($this->caller_params['sort'] == 'type') {
             $this->caller_params['sort'] = 'alph';
             $link_txt = $this->cfg_lng['btn_sort_alph'];
         } elseif ($this->caller_params['sort'] == 'alph') {
             $this->caller_params['sort'] = 'type';
             $link_txt = $this->cfg_lng['btn_sort_type'];
-        } else {
-            $this->caller_params['sort'] = $this->cfg_sort;
-            $link_txt = $this->cfg_lng['btn_sort_'.$this->cfg_sort];
         }
         
         // Disable sort for 'a' (alphabetically; added 2021-01-26)
