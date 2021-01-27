@@ -147,7 +147,7 @@ class CloneDBIS {
         $this->link_new = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=k&jq_type1=LD&jq_term1='.$recent.'" class="dbis_nav">'.$this->cfg_lng['link_new'].'</a>'; //(letzten '.$this->new_since_days.' Tage)
         
         // Custom tub links
-        $this->link_tub_collTD = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=TD" class="dbis_nav">'.$this->cfg_lng['link_tub_collTD'].'</a>';
+        $this->link_tub_collTD = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=TD&sort='.$this->cfg_sort.'" class="dbis_nav">'.$this->cfg_lng['link_tub_collTD'].'</a>';
 
         $this->link_tub_collNL = '<a href="'.$this->caller.'?dbis=dbliste.php&bib_id='.$this->dbis_id.'&lett=c&collid=NL" class="dbis_nav">'.$this->cfg_lng['link_tub_collNL'].'</a>';
 
@@ -177,13 +177,13 @@ class CloneDBIS {
             $target = 'fachliste.php';
             $url = $this->dbis_url.'fachliste.php?bib_id='.$this->dbis_id.'&lett=l';
             */
-            /* Bis 2021-01-26 DBliste Topdatenbanken als Startseit
+            // 26 DBliste Topdatenbanken als Startseite
             $target = 'dbliste.php';
-            $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=c&collid=TD';
-            */
-            // 2021-01-26 Alpabaetisch als standard
+            $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=c&collid=TD&sort='.$this->cfg_sort;
+            /* 2021-01-26: way to set "Alphabetisch" als Standard
             $target = 'dbliste.php';
             $url = $this->dbis_url.'dbliste.php?bib_id='.$this->dbis_id.'&lett=a&fc=1&lc=z';
+            */
         }
         $this->url_vanilla = $url;
         

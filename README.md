@@ -9,7 +9,7 @@ Weglinken von der eigenen Seite ist nicht immer schön, wenn man doch nur sein e
 3. Seite erstellen (z.B. Datenbanken) und den Shortcode [dbis] einfügen
 
 ## Bekannte Limits
-1. Je mehr Datenbanken in einer Kategorie sind, desto länger dauer das Laden. Üblicherweise immer noch fix genug, aber z.B. "Neue DBs (letzten 365 Tage)" kann das meist gesetzte Script-Timeout von 30 Sekunden in PHP sprengen.
+1. Je mehr Datenbanken in einer Kategorie sind, desto länger dauert das Laden. Üblicherweise immer noch fix genug, aber z.B. "Neue DBs (letzten 365 Tage)" kann das meist gesetzte Script-Timeout von 30 Sekunden in PHP sprengen.
 
 ## Todos
 * Caching: Nicht jedes Mal alles live abrufen
@@ -18,3 +18,7 @@ Weglinken von der eigenen Seite ist nicht immer schön, wenn man doch nur sein e
 
 ## Hinweis
 Im Moment keine Tätigkeit in diesem "Projekt". Es ist nur hier gelandet, weil es eben auf der Platte lag. Und lag. Und lag... ;)
+
+## Changelog
+* 2021-01-27: Kleiner Bugfix und wieder Top Datenbanken als Standard, aber mit alphabetischer Sortierung als Vorgabe
+* 2021-01-26: "Alphabetische Liste" als Abfrage hinzugefügt und zum Standardeinstieg gemacht

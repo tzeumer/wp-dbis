@@ -18,8 +18,8 @@ function showSubList(obj) {
       $menu = '<p id="dbis_navmenu">';
       // $menu .= $this->link_home;
       // $menu .= ' | '.$this->link_vanilla;
-      $menu .= $this->link_alphabetically;
-      $menu .= ' | '.$this->link_tub_collTD;
+      // $menu .= ' | '.$this->link_alphabetically;
+      $menu .= $this->link_tub_collTD;
       $menu .= ' | '.$this->link_subject;
       $menu .= ' | '.$this->link_free_dbs;
       $menu .= ' | '.$this->link_tub_collNL;
