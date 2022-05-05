@@ -20,5 +20,6 @@ Weglinken von der eigenen Seite ist nicht immer schön, wenn man doch nur sein e
 Im Moment keine Tätigkeit in diesem "Projekt". Es ist nur hier gelandet, weil es eben auf der Platte lag. Und lag. Und lag... ;)
 
 ## Changelog
+* 2022-05-05: Update dependency fabpot/goutte ~2 to ~4
 * 2021-01-27: Kleiner Bugfix und wieder Top Datenbanken als Standard, aber mit alphabetischer Sortierung als Vorgabe
 * 2021-01-26: "Alphabetische Liste" als Abfrage hinzugefügt und zum Standardeinstieg gemacht
