@@ -74,9 +74,14 @@ class CloneDBIS {
     
     public function start_dbis() {
         // Real start
-        $this->dbis_proxy();
-        $this->nav_links();        
-        $this->output();
+        try {
+            $this->dbis_proxy();
+            $this->nav_links();        
+            $this->output();
+        } catch (Exception $ex) {
+            echo ('<p>Bitte <a href="https://dbis.ur.de/index.php?bib_id="'.$this->dbis_id.'>DBIS direkt öffnen</a>. Die direkte Übersicht in dieser Seite ist aktuell leider gestört.</p>');
+            //header('Location: https://dbis.ur.de/index.php?bib_id="'.$this->dbis_id);
+        }
     }
 
     /**
