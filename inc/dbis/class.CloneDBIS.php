@@ -15,7 +15,7 @@ class CloneDBIS {
     private $tpl_dir;
     public  $template = '';
     
-    private $dbis_url = 'https://dbis.uni-regensburg.de/';
+    private $dbis_url = 'https://dbis.ur.de/';
     public  $dbis_id  = 'tuhh';
 
     // Config stuff (@see start_dbis())
