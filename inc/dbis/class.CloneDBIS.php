@@ -536,7 +536,7 @@ class CloneDBIS {
                 break;
             case 'detail_subjects':
                 // Maybe it would be nice to link the subjects (search
-                $subjects = explode('<br>', $content);
+                $subjects = explode('<br>', trim($content));
                 $subjects = array_filter($subjects, 'strlen'); //remove empty entries
                 $content = '<ul ><li>'.implode('</li><li>', $subjects).'</li></ul>';
                 break;
