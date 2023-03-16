@@ -541,7 +541,7 @@ class CloneDBIS {
                 $content = '<ul ><li>'.implode('</li><li>', $subjects).'</li></ul>';
                 break;
             case 'detail_keywords':
-                $linking = explode('<br>', $content);
+                $linking = explode('<br>', trim($content));
                 $linking = array_filter($linking, 'strlen'); //remove empty entries
                 natsort($linking);
                 // Maybe linking it without the library would make more sense?
