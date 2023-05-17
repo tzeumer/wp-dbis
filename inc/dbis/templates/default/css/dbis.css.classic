@@ -11,15 +11,16 @@ form#dbis_search        {width: 100%; text-align: right;}
 #dbis_fachliste li {padding-top: 5px;}
 
 /* DBliste */
-div#dbis_legend  {padding: 8px;}
+div#dbis_legend  {background-color: #EDF0BC; padding: 8px;}
 
-
-#link_sorting {border: 1px solid #ffffff; background-color: #006a81; padding: 1em; text-decoration: none; color: #ffffff; border-radius: 5px;
-    border-radius: 0px; text-shadow: none; font-weight: bold; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;}
-
-#link_sorting:hover {background: #222; color: #eee;}
+#link_sorting {border: thin solid #619144; background-color: #619144; padding: 5px; text-decoration: none; color: white; border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;}
+#link_sorting:hover {background-color: #B1E194; color: #000000;}
     
-li.dbis_category  { list-style: none; font-size: large; margin-top: 20px; padding: 5px 0; background-color: #F5F5F5;}
+li.dbis_category  { list-style: none; font-size: large; margin-top: 20px; background-color: #E3F0ED;}
 ul.dbis_category_sublist    { font-size: medium; background-color: #ffffff;}
 .toggle_sublist {display: none;}
 .dbis_category_toggle {float: right;}
