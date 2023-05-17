@@ -53,8 +53,8 @@ abstract class AbstractBrowser
     public function __construct(array $server = [], History $history = null, CookieJar $cookieJar = null)
     {
         $this->setServerParameters($server);
-        $this->history = $history ?: new History();
-        $this->cookieJar = $cookieJar ?: new CookieJar();
+        $this->history = $history ?? new History();
+        $this->cookieJar = $cookieJar ?? new CookieJar();
     }
 
     /**
@@ -105,13 +105,11 @@ abstract class AbstractBrowser
     /**
      * Sets the insulated flag.
      *
-     * @param bool $insulated Whether to insulate the requests or not
-     *
      * @throws \RuntimeException When Symfony Process Component is not installed
      */
     public function insulate(bool $insulated = true)
     {
-        if ($insulated && !class_exists('Symfony\\Component\\Process\\Process')) {
+        if ($insulated && !class_exists(\Symfony\Component\Process\Process::class)) {
             throw new \LogicException('Unable to isolate requests as the Symfony Process Component is not installed.');
         }
 
@@ -120,8 +118,6 @@ abstract class AbstractBrowser
 
     /**
      * Sets server parameters.
-     *
-     * @param array $server An array of server parameters
      */
     public function setServerParameters(array $server)
     {
@@ -143,11 +139,11 @@ abstract class AbstractBrowser
      *
      * @param mixed $default A default value when key is undefined
      *
-     * @return mixed A value of the parameter
+     * @return mixed
      */
     public function getServerParameter(string $key, $default = '')
     {
-        return isset($this->server[$key]) ? $this->server[$key] : $default;
+        return $this->server[$key] ?? $default;
     }
 
     public function xmlHttpRequest(string $method, string $uri, array $parameters = [], array $files = [], array $server = [], string $content = null, bool $changeHistory = true): Crawler
@@ -162,9 +158,27 @@ abstract class AbstractBrowser
     }
 
     /**
+     * Converts the request parameters into a JSON string and uses it as request content.
+     */
+    public function jsonRequest(string $method, string $uri, array $parameters = [], array $server = [], bool $changeHistory = true): Crawler
+    {
+        $content = json_encode($parameters);
+
+        $this->setServerParameter('CONTENT_TYPE', 'application/json');
+        $this->setServerParameter('HTTP_ACCEPT', 'application/json');
+
+        try {
+            return $this->request($method, $uri, [], [], $server, $content, $changeHistory);
+        } finally {
+            unset($this->server['CONTENT_TYPE']);
+            unset($this->server['HTTP_ACCEPT']);
+        }
+    }
+
+    /**
      * Returns the History instance.
      *
-     * @return History A History instance
+     * @return History
      */
     public function getHistory()
     {
@@ -174,7 +188,7 @@ abstract class AbstractBrowser
     /**
      * Returns the CookieJar instance.
      *
-     * @return CookieJar A CookieJar instance
+     * @return CookieJar
      */
     public function getCookieJar()
     {
@@ -184,7 +198,7 @@ abstract class AbstractBrowser
     /**
      * Returns the current Crawler instance.
      *
-     * @return Crawler A Crawler instance
+     * @return Crawler
      */
     public function getCrawler()
     {
@@ -198,7 +212,7 @@ abstract class AbstractBrowser
     /**
      * Returns the current BrowserKit Response instance.
      *
-     * @return Response A BrowserKit Response instance
+     * @return Response
      */
     public function getInternalResponse()
     {
@@ -215,7 +229,7 @@ abstract class AbstractBrowser
      * The origin response is the response instance that is returned
      * by the code that handles requests.
      *
-     * @return object A response instance
+     * @return object
      *
      * @see doRequest()
      */
@@ -231,7 +245,7 @@ abstract class AbstractBrowser
     /**
      * Returns the current BrowserKit Request instance.
      *
-     * @return Request A BrowserKit Request instance
+     * @return Request
      */
     public function getInternalRequest()
     {
@@ -248,7 +262,7 @@ abstract class AbstractBrowser
      * The origin request is the request instance that is sent
      * to the code that handles requests.
      *
-     * @return object A Request instance
+     * @return object
      *
      * @see doRequest()
      */
@@ -311,7 +325,7 @@ abstract class AbstractBrowser
      * @param string $button           The text content, id, value or name of the form <button> or <input type="submit">
      * @param array  $fieldValues      Use this syntax: ['my_form[name]' => '...', 'my_form[email]' => '...']
      * @param string $method           The HTTP method used to submit the form
-     * @param array  $serverParameters These values override the ones stored in $_SERVER (HTTP headers must include a HTTP_ prefix as PHP does)
+     * @param array  $serverParameters These values override the ones stored in $_SERVER (HTTP headers must include an HTTP_ prefix as PHP does)
      */
     public function submitForm(string $button, array $fieldValues = [], string $method = 'POST', array $serverParameters = []): Crawler
     {
@@ -332,7 +346,7 @@ abstract class AbstractBrowser
      * @param string $uri           The URI to fetch
      * @param array  $parameters    The Request parameters
      * @param array  $files         The files
-     * @param array  $server        The server parameters (HTTP headers are referenced with a HTTP_ prefix as PHP does)
+     * @param array  $server        The server parameters (HTTP headers are referenced with an HTTP_ prefix as PHP does)
      * @param string $content       The raw body data
      * @param bool   $changeHistory Whether to update the history or not (only used internally for back(), forward(), and reload())
      *
@@ -417,13 +431,11 @@ abstract class AbstractBrowser
     /**
      * Makes a request in another process.
      *
-     * @param object $request An origin request instance
-     *
-     * @return object An origin response instance
+     * @return object
      *
      * @throws \RuntimeException When processing returns exit code
      */
-    protected function doRequestInProcess($request)
+    protected function doRequestInProcess(object $request)
     {
         $deprecationsFile = tempnam(sys_get_temp_dir(), 'deprec');
         putenv('SYMFONY_DEPRECATIONS_SERIALIZE='.$deprecationsFile);
@@ -454,11 +466,9 @@ abstract class AbstractBrowser
     /**
      * Makes a request.
      *
-     * @param object $request An origin request instance
-     *
-     * @return object An origin response instance
+     * @return object
      */
-    abstract protected function doRequest($request);
+    abstract protected function doRequest(object $request);
 
     /**
      * Returns the script to execute when the request must be insulated.
@@ -467,7 +477,7 @@ abstract class AbstractBrowser
      *
      * @throws \LogicException When this abstract class is not implemented
      */
-    protected function getScript($request)
+    protected function getScript(object $request)
     {
         throw new \LogicException('To insulate requests, you need to override the getScript() method.');
     }
@@ -475,7 +485,7 @@ abstract class AbstractBrowser
     /**
      * Filters the BrowserKit request to the origin one.
      *
-     * @return object An origin request instance
+     * @return object
      */
     protected function filterRequest(Request $request)
     {
@@ -485,11 +495,9 @@ abstract class AbstractBrowser
     /**
      * Filters the origin response to the BrowserKit one.
      *
-     * @param object $response The origin response to filter
-     *
-     * @return Response An BrowserKit Response instance
+     * @return Response
      */
-    protected function filterResponse($response)
+    protected function filterResponse(object $response)
     {
         return $response;
     }
@@ -503,7 +511,7 @@ abstract class AbstractBrowser
      */
     protected function createCrawlerFromContent(string $uri, string $content, string $type)
     {
-        if (!class_exists('Symfony\Component\DomCrawler\Crawler')) {
+        if (!class_exists(Crawler::class)) {
             return null;
         }
 
@@ -631,9 +639,7 @@ abstract class AbstractBrowser
     /**
      * Takes a URI and converts it to absolute if it is not already absolute.
      *
-     * @param string $uri A URI
-     *
-     * @return string An absolute URI
+     * @return string
      */
     protected function getAbsoluteUri(string $uri)
     {
@@ -647,7 +653,7 @@ abstract class AbstractBrowser
         } else {
             $currentUri = sprintf('http%s://%s/',
                 isset($this->server['HTTPS']) ? 's' : '',
-                isset($this->server['HTTP_HOST']) ? $this->server['HTTP_HOST'] : 'localhost'
+                $this->server['HTTP_HOST'] ?? 'localhost'
             );
         }
 
@@ -681,7 +687,7 @@ abstract class AbstractBrowser
      *
      * @return Crawler
      */
-    protected function requestFromRequest(Request $request, $changeHistory = true)
+    protected function requestFromRequest(Request $request, bool $changeHistory = true)
     {
         return $this->request($request->getMethod(), $request->getUri(), $request->getParameters(), $request->getFiles(), $request->getServer(), $request->getContent(), $changeHistory);
     }

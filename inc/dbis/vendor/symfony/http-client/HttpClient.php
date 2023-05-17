@@ -44,13 +44,13 @@ final class HttpClient
             $curlVersion = $curlVersion ?? curl_version();
 
             // HTTP/2 push crashes before curl 7.61
-            if (0x073d00 > $curlVersion['version_number'] || !(\CURL_VERSION_HTTP2 & $curlVersion['features'])) {
+            if (0x073D00 > $curlVersion['version_number'] || !(\CURL_VERSION_HTTP2 & $curlVersion['features'])) {
                 return new AmpHttpClient($defaultOptions, null, $maxHostConnections, $maxPendingPushes);
             }
         }
 
         if (\extension_loaded('curl')) {
-            if ('\\' !== \DIRECTORY_SEPARATOR || ini_get('curl.cainfo') || ini_get('openssl.cafile') || ini_get('openssl.capath')) {
+            if ('\\' !== \DIRECTORY_SEPARATOR || isset($defaultOptions['cafile']) || isset($defaultOptions['capath']) || ini_get('curl.cainfo') || ini_get('openssl.cafile') || ini_get('openssl.capath')) {
                 return new CurlHttpClient($defaultOptions, $maxHostConnections, $maxPendingPushes);
             }
 

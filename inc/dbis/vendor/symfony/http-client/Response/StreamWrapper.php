@@ -61,7 +61,7 @@ class StreamWrapper
             throw new \InvalidArgumentException(sprintf('Providing a client to "%s()" is required when the response doesn\'t have any "stream()" method.', __CLASS__));
         }
 
-        if (false === stream_wrapper_register('symfony', __CLASS__, \STREAM_IS_URL)) {
+        if (false === stream_wrapper_register('symfony', __CLASS__)) {
             throw new \RuntimeException(error_get_last()['message'] ?? 'Registering the "symfony" stream wrapper failed.');
         }
 
@@ -289,7 +289,7 @@ class StreamWrapper
             'uid' => 0,
             'gid' => 0,
             'rdev' => 0,
-            'size' => (int) ($headers['content-length'][0] ?? 0),
+            'size' => (int) ($headers['content-length'][0] ?? -1),
             'atime' => 0,
             'mtime' => strtotime($headers['last-modified'][0] ?? '') ?: 0,
             'ctime' => 0,

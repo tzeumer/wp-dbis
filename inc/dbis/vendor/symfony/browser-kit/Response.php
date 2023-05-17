@@ -37,8 +37,6 @@ final class Response
 
     /**
      * Converts the response object to string containing all headers and the response content.
-     *
-     * @return string The response with headers and content
      */
     public function __toString(): string
     {
@@ -58,8 +56,6 @@ final class Response
 
     /**
      * Gets the response content.
-     *
-     * @return string The response content
      */
     public function getContent(): string
     {
@@ -73,8 +69,6 @@ final class Response
 
     /**
      * Gets the response headers.
-     *
-     * @return array The response headers
      */
     public function getHeaders(): array
     {
@@ -84,7 +78,7 @@ final class Response
     /**
      * Gets a response header.
      *
-     * @return string|array The first header value if $first is true, an array of values otherwise
+     * @return string|array|null The first header value if $first is true, an array of values otherwise
      */
     public function getHeader(string $header, bool $first = true)
     {
