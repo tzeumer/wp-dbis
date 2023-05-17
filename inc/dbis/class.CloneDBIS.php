@@ -243,8 +243,8 @@ class CloneDBIS {
             $this->result_fachliste = $list->each(function ($node) use ($php53) {
                 $name = trim($node->filterXPath('//td[1]')->text());
                 $href = $node->filterXPath('//td[1]/a/@href')->text();
-                parse_str($href);
-                $id = (isset($gebiete)) ? $gebiete : false;
+                parse_str($href, $parsed);
+                $id = (isset($parsed['gebiete'])) ? $parsed['gebiete'] : false;
                 $link = trim($node->filterXPath('//td[1]')->html());
                 $hits = $node->filterXPath('//td[2]')->html();
 
@@ -349,8 +349,8 @@ class CloneDBIS {
                         $name = trim($node->filterXPath('//td[1][a/@href]')->text());
                         $link = trim($node->filterXPath('//td[1][a/@href]')->html());
                         $href = $node->filterXPath('//td[1]/a/@href')->text();
-                        parse_str($href);
-                        $id = $titel_id;
+						parse_str($href, $parsed);
+                        $id = $parsed['titel_id'];
                         $access_text = $node->filterXPath('//td[2]')->text();
                         $access_lib = $node->filterXPath('//td[3]')->html();
                         break;
@@ -496,7 +496,7 @@ class CloneDBIS {
         }
         $page_rows[] = '</table>';
         
-        $this->result_detail['default'] = implode($page_rows, "\n");
+        $this->result_detail['default'] = implode("\n", $page_rows);
 
         return true;
     }
