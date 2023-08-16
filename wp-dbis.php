@@ -24,7 +24,7 @@ function shortcode_dbis( $atts ) {
             'sort' => 'alph',
         ), $atts, 'bartag' );
 	
-    include 'inc/dbis/class.CloneDBIS.php';
+    include_once 'inc/dbis/class.CloneDBIS.php';
     //$dbis_id = get_option('dbis_id'); // 2016-10-18 TZ: erst mal raus
     $dbis_id = 'tuhh';
     $bla = new CloneDBIS($atts);
