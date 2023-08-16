@@ -15,7 +15,7 @@ div#dbis_legend  {padding: 8px;}
 
 
 #link_sorting {border: 1px solid #ffffff; background-color: #006a81; padding: 1em; text-decoration: none; color: #ffffff; border-radius: 5px;
-    border-radius: 0px; text-shadow: none; font-weight: bold; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;}
+    border-radius: 0px; text-shadow: none; font-weight: bold; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; line-height: 2em;}
 
 #link_sorting:hover {background: #222; color: #eee;}
     
