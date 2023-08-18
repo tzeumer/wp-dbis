@@ -72,12 +72,15 @@ class CloneDBIS {
         }
     }
     
+    /**
+	 * Fix 2023-08-18: Always return (otherwise breaks e.g. saving in Gutenberg); https://developer.wordpress.org/plugins/shortcodes/
+     */
     public function start_dbis() {
         // Real start
         try {
             $this->dbis_proxy();
             $this->nav_links();        
-            $this->output();
+            return $this->output();
         } catch (Exception $ex) {
             echo ('<p>Bitte <a href="https://dbis.ur.de/index.php?bib_id="'.$this->dbis_id.'>DBIS direkt öffnen</a>. Die direkte Übersicht in dieser Seite ist aktuell leider gestört.</p>');
             //header('Location: https://dbis.ur.de/index.php?bib_id="'.$this->dbis_id);
@@ -212,11 +215,16 @@ class CloneDBIS {
 
     /** 
      * Finally move this out of this class, let it handle the wordpress plugin
+	 * Fix 2023-08-18: Always return (otherwise breaks e.g. saving in Gutenberg); https://developer.wordpress.org/plugins/shortcodes/
      */
     public function output() {
+		ob_start();
         include('templates/default/default_header.tpl');
         include('templates/default/'.$this->template);
         include('templates/default/default_footer.tpl');
+		$data = ob_get_contents();
+		ob_end_clean();
+		return $data;
     }
     
     

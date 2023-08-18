@@ -9,6 +9,9 @@ Author URI: #
 License: GPL2
 */
 
+/**
+ * Fix 2023-08-18: Always return (otherwise breaks e.g. saving in Gutenberg); https://developer.wordpress.org/plugins/shortcodes/
+ */
 function shortcode_dbis( $atts ) {
 	// Set Plugin URL
 	$pluginUrl = WP_PLUGIN_URL . '/wp-dbis';
@@ -29,7 +32,7 @@ function shortcode_dbis( $atts ) {
     $dbis_id = 'tuhh';
     $bla = new CloneDBIS($atts);
     if ($dbis_id) $bla->dbis_id = $dbis_id;
-    $bla->start_dbis();
+    return $bla->start_dbis();
 }
 add_shortcode( 'dbis', 'shortcode_dbis' );
 
