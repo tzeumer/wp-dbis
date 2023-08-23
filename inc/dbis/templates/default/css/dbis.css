@@ -15,7 +15,7 @@ div#dbis_legend  {padding: 8px;}
 
 
 #link_sorting {border: 1px solid #ffffff; background-color: #006a81; padding: 1em; text-decoration: none; color: #ffffff; border-radius: 5px;
-    border-radius: 0px; text-shadow: none; font-weight: bold; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; line-height: 2em;}
+    border-radius: 0px; text-shadow: none; font-weight: bold; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; line-height: 2em; white-space: nowrap;}
 
 #link_sorting:hover {background: #222; color: #eee;}
     
@@ -60,3 +60,9 @@ tr#detail_remarks       {}
 
 tr#detail_subjects ul    {list-style-type: square; padding: 0px; margin-left: 15px;}
 tr#detail_subjects ul li {background-repeat: no-repeat; background-position: 0px 0px; padding-left: 0px;}
+
+
+/* Some minor mobiel adjustments */
+@media only screen and (max-device-width : 400px) {
+    #link_sorting { font-size: 0.7rem }
+}
