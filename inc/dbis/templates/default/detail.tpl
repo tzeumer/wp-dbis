@@ -14,6 +14,6 @@
   -->
   <div id="dbis_detail">
   <?php
-    echo $this->result_detail['default'];
+    if (isset($this->result_detail['default'])) echo $this->result_detail['default'];
   ?>
   </div>
